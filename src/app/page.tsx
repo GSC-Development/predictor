@@ -1,103 +1,124 @@
-import Image from "next/image";
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [isNavigating, setIsNavigating] = useState(false)
+  const router = useRouter()
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleNavigation = (path: string) => {
+    if (isNavigating) return
+    setIsNavigating(true)
+    router.push(path)
+    // Reset after navigation (failsafe)
+    setTimeout(() => setIsNavigating(false), 2000)
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-muted/50">
+      <main className="container mx-auto px-6 py-16">
+        {/* Hero Section */}
+        <div className="text-center mb-20">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            SPL Predictor
+          </h1>
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Predict exact scores, compete globally
+          </p>
         </div>
+        
+        {/* Action Cards */}
+        <div className="grid gap-8 md:gap-12 max-w-5xl mx-auto">
+          
+          {/* Primary Action */}
+          <Card className="group relative overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:shadow-3xl transition-all duration-500 hover:scale-[1.02]">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-3xl md:text-4xl font-bold flex items-center gap-4">
+                <span className="text-3xl font-bold">▲</span>
+                Make Predictions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-lg md:text-xl mb-8 text-primary-foreground/90 leading-relaxed">
+                Predict exact scores for Scottish Premier League matches
+              </p>
+              <Button 
+                size="lg"
+                variant="secondary" 
+                className="w-full text-lg py-6 font-semibold hover:bg-secondary/90 transition-all duration-300"
+                onClick={() => handleNavigation("/predictions")}
+                disabled={isNavigating}
+              >
+                {isNavigating ? "Loading..." : "Start Predicting"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Secondary Actions */}
+          <div className="grid gap-8 md:grid-cols-2">
+            <Card className="group border-2 border-primary/20 hover:border-primary/40 bg-card/50 backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold flex items-center gap-3 text-primary">
+                  <span className="text-2xl font-bold">●</span>
+                  Join Leagues
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Create private leagues or join public competitions
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                  onClick={() => handleNavigation("/leagues")}
+                  disabled={isNavigating}
+                >
+                  Browse Leagues
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="group border-2 border-primary/20 hover:border-primary/40 bg-card/50 backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold flex items-center gap-3 text-primary">
+                  <span className="text-2xl font-bold">▪</span>
+                  Global Leaders
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  See who&apos;s leading the global prediction rankings
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                  onClick={() => handleNavigation("/leaderboard")}
+                  disabled={isNavigating}
+                >
+                  View Leaderboard
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Loading Overlay */}
+        {isNavigating && (
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-card p-8 rounded-lg shadow-2xl border border-primary/20">
+              <div className="flex items-center gap-4">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-lg font-medium">Loading...</span>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
-  );
+  )
 }

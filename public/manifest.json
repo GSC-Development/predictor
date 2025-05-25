@@ -1,0 +1,16 @@
+{
+  "name": "SPL Predictor",
+  "short_name": "SPL Predictor",
+  "description": "Scottish Premier League Prediction Game",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#457b9d",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
