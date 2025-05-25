@@ -93,4 +93,21 @@ export interface CreatePredictionData {
   homeScore: number;
   awayScore: number;
   points: number;
+}
+
+export interface MatchResult {
+  id?: string
+  fixtureId: string
+  homeScore: number
+  awayScore: number
+  isFinished: boolean
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+export interface CreateMatchResultData {
+  fixtureId: string
+  homeScore: number
+  awayScore: number
+  isFinished: boolean
 } 
