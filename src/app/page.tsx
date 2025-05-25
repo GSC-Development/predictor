@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Leaderboard } from "@/components/leaderboard"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
@@ -31,7 +32,7 @@ export default function Home() {
         </div>
         
         {/* Action Cards */}
-        <div className="grid gap-8 md:gap-12 max-w-5xl mx-auto">
+        <div className="grid gap-8 md:gap-12 max-w-6xl mx-auto">
           
           {/* Primary Action */}
           <Card className="group relative overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:shadow-3xl transition-all duration-500 hover:scale-[1.02]">
@@ -104,6 +105,14 @@ export default function Home() {
                 </Button>
               </CardContent>
             </Card>
+          </div>
+          
+          {/* Live Leaderboard Preview */}
+          <div className="mt-8">
+            <Leaderboard 
+              title="Top Predictors"
+              maxEntries={5}
+            />
           </div>
         </div>
 
