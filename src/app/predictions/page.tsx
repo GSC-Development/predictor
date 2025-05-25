@@ -10,10 +10,11 @@ import { createPrediction, getUserPredictions } from "@/lib/firestore"
 import { Fixture, Prediction } from "@/types"
 
 export default function PredictionsPage() {
-  const { user, signInAnonymous, loading: authLoading } = useAuth()
+  const { user, signInAnonymous, loading: authLoading, error: authError } = useAuth()
   const [fixtures, setFixtures] = useState<Fixture[]>([])
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [loading, setLoading] = useState(true)
+  const [signingIn, setSigningIn] = useState(false)
 
   useEffect(() => {
     // Load demo fixtures
@@ -37,6 +38,17 @@ export default function PredictionsPage() {
       setPredictions(userPredictions)
     } catch (error) {
       console.error("Failed to load predictions:", error)
+    }
+  }
+
+  const handleSignIn = async () => {
+    setSigningIn(true)
+    try {
+      await signInAnonymous()
+    } catch (error) {
+      console.error("Sign in failed:", error)
+    } finally {
+      setSigningIn(false)
     }
   }
 
@@ -107,12 +119,32 @@ export default function PredictionsPage() {
                   Sign in to start making predictions and compete with players worldwide.
                 </p>
                 
+                {/* Error Message */}
+                {authError && (
+                  <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                    <p className="text-destructive text-sm text-center">
+                      <strong>Authentication Error:</strong> {authError}
+                    </p>
+                    <p className="text-destructive/70 text-xs text-center mt-2">
+                      Please ensure anonymous authentication is enabled in Firebase Console.
+                    </p>
+                  </div>
+                )}
+                
                 <Button
-                  onClick={signInAnonymous}
+                  onClick={handleSignIn}
                   size="lg"
                   className="w-full"
+                  disabled={signingIn}
                 >
-                  Sign In & Start Predicting
+                  {signingIn ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+                      Signing In...
+                    </div>
+                  ) : (
+                    "Sign In & Start Predicting"
+                  )}
                 </Button>
                 
                 <p className="text-sm text-muted-foreground text-center">
