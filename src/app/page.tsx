@@ -23,10 +23,10 @@ export default function Home() {
         {/* Hero Section */}
         <div className="text-center mb-20">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            SPL Predictor
+            Predictor
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Predict exact scores, compete globally
+            Predict exact scores across multiple leagues
           </p>
         </div>
         
@@ -43,7 +43,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <p className="text-lg md:text-xl mb-8 text-primary-foreground/90 leading-relaxed">
-                Predict exact scores for Scottish Premier League matches
+                Predict exact scores for football matches across different leagues
               </p>
               <Button 
                 size="lg"
@@ -91,7 +91,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  See who&apos;s leading the global prediction rankings
+                  See who&apos;s leading across all leagues and competitions
                 </p>
                 <Button 
                   variant="outline" 

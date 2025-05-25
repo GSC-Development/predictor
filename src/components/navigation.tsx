@@ -20,7 +20,7 @@ export function Navigation() {
         <div className="flex items-center justify-between">
           <Link href="/" className="group">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hover:from-accent hover:to-primary transition-all duration-300">
-              SPL Predictor
+              Predictor
             </h2>
           </Link>
           

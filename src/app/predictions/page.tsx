@@ -9,7 +9,7 @@ export default function PredictionsPage() {
             Make Predictions
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl leading-relaxed">
-            Predict exact scores for upcoming Scottish Premier League matches
+            Predict exact scores for upcoming matches across different leagues
           </p>
         </div>
 
@@ -23,7 +23,7 @@ export default function PredictionsPage() {
             </CardHeader>
             <CardContent className="space-y-8">
               <p className="text-lg text-muted-foreground text-center leading-relaxed">
-                This is where you&apos;ll predict exact scores for upcoming SPL matches.
+                This is where you&apos;ll predict exact scores for upcoming matches.
               </p>
               
               <div className="grid gap-4 md:gap-6">

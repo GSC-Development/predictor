@@ -1,7 +1,7 @@
 {
-  "name": "SPL Predictor",
-  "short_name": "SPL Predictor",
-  "description": "Scottish Premier League Prediction Game",
+  "name": "Predictor",
+  "short_name": "Predictor",
+  "description": "Football Prediction Game - Predict exact scores across multiple leagues",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fafafa",

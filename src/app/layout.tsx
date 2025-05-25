@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SPL Predictor",
-  description: "Scottish Premier League Prediction Game",
+  title: "Predictor",
+  description: "Football Prediction Game - Predict exact scores across multiple leagues",
   manifest: "/manifest.json",
   icons: {
     icon: "/icon.svg",

@@ -9,7 +9,7 @@ export default function LeaderboardPage() {
             Global Leaderboard
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl leading-relaxed">
-            See who&apos;s dominating the SPL prediction game worldwide
+            See who&apos;s dominating the prediction game across all leagues
           </p>
         </div>
 
