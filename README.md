@@ -1,4 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SPL Predictor
+
+A modern football prediction app for the Scottish Premier League built with Next.js, Firebase, and TypeScript.
+
+## Features
+
+- 🏆 Real-time leaderboards
+- ⚽ Score predictions for SPL matches
+- 🔥 Firebase authentication and real-time database
+- 📱 Responsive mobile-first design
+- 🎨 Modern UI with Tailwind CSS and shadcn/ui
+
+## Environment Setup
+
+1. Copy the environment variables template:
+```bash
+cp .env.example .env.local
+```
+
+2. Fill in your environment variables in `.env.local`:
+   - **Firebase config**: Get from your Firebase project settings
+   - **API Football key**: Get from [API Football](https://rapidapi.com/api-sports/api/api-football/)
 
 ## Getting Started
 
@@ -34,3 +55,18 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Security
+
+This app implements security best practices:
+
+- **API Keys**: All external API keys are stored server-side only and never exposed to the client
+- **Authentication**: Firebase Auth handles user authentication securely
+- **Environment Variables**: Sensitive data is stored in environment variables that are git-ignored
+- **Server-Side API Calls**: External API calls are made from Next.js API routes, not client-side
+
+## API Routes
+
+- `/api/fixtures` - Fetch football fixtures from API Football
+- `/api/teams` - Fetch team information and logos
+- `/api/sync` - Sync fixture data with Firestore

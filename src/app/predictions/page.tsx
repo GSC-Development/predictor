@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { PredictionCard } from "@/components/prediction-card"
@@ -91,14 +91,7 @@ export default function PredictionsPage() {
     }
   }
 
-  useEffect(() => {
-    // Load user predictions if authenticated
-    if (user) {
-      loadUserPredictions()
-    }
-  }, [user])
-
-  const loadUserPredictions = async () => {
+  const loadUserPredictions = useCallback(async () => {
     if (!user) return
     
     try {
@@ -117,7 +110,14 @@ export default function PredictionsPage() {
     } catch (error) {
       console.error("Failed to load predictions:", error)
     }
-  }
+  }, [user, currentPredictions])
+
+  useEffect(() => {
+    // Load user predictions if authenticated
+    if (user) {
+      loadUserPredictions()
+    }
+  }, [user, loadUserPredictions])
 
   // Sign-in is now handled by the SignInForm component
 

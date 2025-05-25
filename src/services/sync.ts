@@ -1,5 +1,6 @@
 import { apiFootballService } from './api-football'
 import { createFixture, createMatchResult, updatePredictionPoints } from '@/lib/firestore'
+import type { MatchResult } from '@/types'
 
 class SyncService {
   async syncUpcomingFixtures(): Promise<void> {
@@ -11,7 +12,7 @@ class SyncService {
         try {
           await createFixture(fixtureData)
           console.log(`Created fixture: ${fixtureData.homeTeam} vs ${fixtureData.awayTeam}`)
-        } catch (error) {
+        } catch {
           // Fixture might already exist, that's okay
           console.log(`Fixture already exists: ${fixtureData.homeTeam} vs ${fixtureData.awayTeam}`)
         }
@@ -46,10 +47,10 @@ class SyncService {
             awayScore: fixture.awayScore || 0
           }
           
-          await updatePredictionPoints(fixture.fixtureId, result as any)
+          await updatePredictionPoints(fixture.fixtureId, result as MatchResult)
           
           console.log(`Processed result: ${fixture.homeTeam} ${fixture.homeScore}-${fixture.awayScore} ${fixture.awayTeam}`)
-        } catch (error) {
+        } catch {
           // Result might already exist, that's okay
           console.log(`Result already processed: ${fixture.homeTeam} vs ${fixture.awayTeam}`)
         }
@@ -73,7 +74,7 @@ class SyncService {
         try {
           await createFixture(fixtureData)
           console.log(`✅ Created fixture: ${fixtureData.homeTeam} vs ${fixtureData.awayTeam} (${fixtureData.status})`)
-        } catch (error) {
+        } catch {
           console.log(`⚠️ Fixture already exists: ${fixtureData.homeTeam} vs ${fixtureData.awayTeam}`)
         }
       }

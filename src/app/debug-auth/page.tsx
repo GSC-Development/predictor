@@ -16,6 +16,16 @@ export default function DebugAuthPage() {
     }
   };
 
+  const testSignIn = async () => {
+    try {
+      console.log('🧪 Testing sign in...');
+      await signIn('debug@example.com', 'debug123');
+      console.log('✅ Sign in successful');
+    } catch (err) {
+      console.error('❌ Sign in failed:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen p-8 bg-gray-50">
       <div className="max-w-2xl mx-auto">
@@ -65,6 +75,10 @@ export default function DebugAuthPage() {
               🧪 Test Sign Up (debug@example.com)
             </Button>
             
+            <Button onClick={testSignIn} className="w-full">
+              🔑 Test Sign In (debug@example.com)
+            </Button>
+            
             {user && (
               <Button onClick={logout} variant="destructive" className="w-full">
                 🚪 Sign Out
@@ -78,7 +92,7 @@ export default function DebugAuthPage() {
           <div className="space-y-2 text-sm text-gray-600">
             <p>✅ <strong>When not signed in:</strong> user = null, should show AuthForm</p>
             <p>✅ <strong>When signed in:</strong> user = object, should show prediction cards</p>
-            <p>✅ <strong>Navigation:</strong> should show "Sign In" or user avatar accordingly</p>
+            <p>✅ <strong>Navigation:</strong> should show &quot;Sign In&quot; or user avatar accordingly</p>
           </div>
         </div>
       </div>

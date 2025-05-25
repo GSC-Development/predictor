@@ -2,7 +2,9 @@ import {
   collection, 
   doc, 
   addDoc, 
+  setDoc,
   updateDoc, 
+  deleteDoc,
   getDoc, 
   getDocs, 
   query, 
@@ -35,21 +37,51 @@ export const resultsCollection = collection(db, "results");
 
 // User functions
 export const createUser = async (userData: CreateUserData): Promise<string> => {
-  const docRef = await addDoc(usersCollection, {
+  const docRef = doc(db, "users", userData.userId);
+  await setDoc(docRef, {
     ...userData,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now()
   });
-  return docRef.id;
+  return userData.userId;
 };
 
 export const getUser = async (userId: string): Promise<User | null> => {
+  // First try to get user by document ID (new method)
   const docRef = doc(db, "users", userId);
   const docSnap = await getDoc(docRef);
   
   if (docSnap.exists()) {
     return { id: docSnap.id, ...docSnap.data() } as User;
   }
+  
+  // Fallback: try to find user by userId field (for existing users created with old method)
+  const q = query(usersCollection, where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
+  
+  if (!querySnapshot.empty) {
+    const doc = querySnapshot.docs[0];
+    const userData = { id: doc.id, ...doc.data() } as User;
+    
+    // Migrate user to new structure (use Auth UID as document ID)
+    try {
+      const newDocRef = docRef; // doc(db, "users", userId) from above
+      await setDoc(newDocRef, {
+        ...userData,
+        updatedAt: Timestamp.now()
+      });
+      
+      // Delete old document
+      await deleteDoc(doc.ref);
+      
+      return { id: userId, ...userData } as User;
+    } catch (error) {
+      console.error('Error migrating user data:', error);
+      // Return user data even if migration fails
+      return userData;
+    }
+  }
+  
   return null;
 };
 
@@ -284,4 +316,18 @@ export const getAllResults = async (): Promise<MatchResult[]> => {
     id: doc.id,
     ...doc.data()
   })) as MatchResult[];
+};
+
+// Delete user data (for account deletion)
+export const deleteUserData = async (userId: string): Promise<void> => {
+  // Delete user document
+  const userDocRef = doc(db, "users", userId);
+  await deleteDoc(userDocRef);
+  
+  // Delete user's predictions
+  const predictionsQuery = query(predictionsCollection, where("userId", "==", userId));
+  const predictionsSnapshot = await getDocs(predictionsQuery);
+  
+  const deletePromises = predictionsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+  await Promise.all(deletePromises);
 }; 

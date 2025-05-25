@@ -1,5 +1,6 @@
 // Results service with API abstraction
 import { createMatchResult, getMatchResult, updatePredictionPoints, getAllResults } from '@/lib/firestore'
+import { Timestamp } from 'firebase/firestore'
 import type { CreateMatchResultData, MatchResult } from '@/types'
 
 export interface ResultsProvider {
@@ -47,8 +48,8 @@ class APIResultsProvider implements ResultsProvider {
             homeScore: fixture.goals.home || 0,
             awayScore: fixture.goals.away || 0,
             isFinished: true,
-            createdAt: new Date() as any,
-            updatedAt: new Date() as any
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
           }
         }
       }
@@ -85,8 +86,8 @@ class APIResultsProvider implements ResultsProvider {
               homeScore: fixture.goals.home || 0,
               awayScore: fixture.goals.away || 0,
               isFinished: true,
-              createdAt: new Date() as any,
-              updatedAt: new Date() as any
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now()
             })
           }
         }

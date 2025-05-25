@@ -1,89 +1,38 @@
-import { Timestamp } from 'firebase/firestore'
 import type { CreateFixtureData } from '@/types'
 
-interface APIFootballTeam {
-  team: {
-    id: number
-    name: string
-    logo: string
-  }
-}
-
-interface APIFootballTeamsResponse {
-  response: APIFootballTeam[]
-}
-
-interface APIFootballFixture {
-  fixture: {
-    id: number
-    date: string
-    status: {
-      short: string
-    }
-    venue: {
-      name: string
-    }
-  }
-  teams: {
-    home: {
-      name: string
-    }
-    away: {
-      name: string
-    }
-  }
-  goals: {
-    home: number | null
-    away: number | null
-  }
-  league: {
-    round: string
-  }
-}
-
-interface APIFootballResponse {
-  response: APIFootballFixture[]
+interface APIResponse<T> {
+  fixtures?: T
+  teams?: T
+  error?: string
 }
 
 class APIFootballService {
-  private apiKey: string
-  private baseUrl: string
-
-  constructor() {
-    this.apiKey = process.env.API_FOOTBALL_KEY || process.env.NEXT_PUBLIC_API_FOOTBALL_KEY || 'dbd13cc8237bd43f4f461560e1d814b9'
-    this.baseUrl = process.env.API_FOOTBALL_BASE_URL || process.env.NEXT_PUBLIC_API_FOOTBALL_BASE_URL || 'https://v3.football.api-sports.io'
-  }
-
-  private async makeRequest(endpoint: string): Promise<APIFootballResponse> {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      headers: {
-        'X-RapidAPI-Key': this.apiKey,
-        'X-RapidAPI-Host': 'v3.football.api-sports.io'
-      }
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`API request failed: ${response.status} - ${errorText}`)
+  private async makeRequest<T>(endpoint: string, params?: URLSearchParams): Promise<T[]> {
+    const url = new URL('/api' + endpoint, window.location.origin)
+    if (params) {
+      params.forEach((value, key) => url.searchParams.set(key, value))
     }
 
-    return response.json()
+    const response = await fetch(url.toString())
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || `API request failed: ${response.status}`)
+    }
+
+    const data: APIResponse<T[]> = await response.json()
+    
+    if (data.error) {
+      throw new Error(data.error)
+    }
+
+    return data.fixtures || data.teams || []
   }
 
   async fetchUpcomingFixtures(): Promise<CreateFixtureData[]> {
     try {
-      const data = await this.makeRequest('/fixtures?league=179&season=2023&status=NS')
-      
-      return data.response.map(fixture => ({
-        fixtureId: fixture.fixture.id.toString(),
-        homeTeam: fixture.teams.home.name,
-        awayTeam: fixture.teams.away.name,
-        kickOffTime: Timestamp.fromDate(new Date(fixture.fixture.date)),
-        matchDate: Timestamp.fromDate(new Date(fixture.fixture.date)),
-        leagueType: 'spl',
-        gameweek: this.extractGameweek(fixture.league.round),
-        status: 'upcoming' as const
-      }))
+      const params = new URLSearchParams({ type: 'upcoming' })
+      return await this.makeRequest<CreateFixtureData>('/fixtures', params)
     } catch (error) {
       console.error('Error fetching upcoming fixtures:', error)
       return []
@@ -92,23 +41,15 @@ class APIFootballService {
 
   async fetchFixturesByDateRange(from: string, to: string): Promise<CreateFixtureData[]> {
     try {
-      console.log(`Making API call: /fixtures?league=179&season=2023&from=${from}&to=${to}`)
-      const data = await this.makeRequest(`/fixtures?league=179&season=2023&from=${from}&to=${to}`)
-      console.log(`API returned ${data.response.length} fixtures`)
-      
-      return data.response.map(fixture => ({
-        fixtureId: fixture.fixture.id.toString(),
-        homeTeam: fixture.teams.home.name,
-        awayTeam: fixture.teams.away.name,
-        kickOffTime: Timestamp.fromDate(new Date(fixture.fixture.date)),
-        matchDate: Timestamp.fromDate(new Date(fixture.fixture.date)),
-        leagueType: 'spl',
-        gameweek: this.extractGameweek(fixture.league.round),
-        homeScore: fixture.goals.home || undefined,
-        awayScore: fixture.goals.away || undefined,
-        status: fixture.fixture.status.short === 'FT' ? 'finished' as const : 
-                fixture.fixture.status.short === 'LIVE' ? 'live' as const : 'upcoming' as const
-      }))
+      console.log(`Making API call: /fixtures with daterange from=${from}&to=${to}`)
+      const params = new URLSearchParams({ 
+        type: 'daterange',
+        from,
+        to
+      })
+      const data = await this.makeRequest<CreateFixtureData>('/fixtures', params)
+      console.log(`API returned ${data.length} fixtures`)
+      return data
     } catch (error) {
       console.error('Error fetching fixtures by date range:', error)
       return []
@@ -116,26 +57,19 @@ class APIFootballService {
   }
 
   async fetchLastMatchday(): Promise<CreateFixtureData[]> {
-    // SPL 2023 season ended on May 26, 2024 - fetch final week
-    return this.fetchFixturesByDateRange('2024-05-22', '2024-05-26')
+    try {
+      const params = new URLSearchParams({ type: 'lastmatchday' })
+      return await this.makeRequest<CreateFixtureData>('/fixtures', params)
+    } catch (error) {
+      console.error('Error fetching last matchday:', error)
+      return []
+    }
   }
 
   async fetchLiveFixtures(): Promise<CreateFixtureData[]> {
     try {
-      const data = await this.makeRequest('/fixtures?league=179&live=all')
-      
-      return data.response.map(fixture => ({
-        fixtureId: fixture.fixture.id.toString(),
-        homeTeam: fixture.teams.home.name,
-        awayTeam: fixture.teams.away.name,
-        kickOffTime: Timestamp.fromDate(new Date(fixture.fixture.date)),
-        matchDate: Timestamp.fromDate(new Date(fixture.fixture.date)),
-        leagueType: 'spl',
-        gameweek: this.extractGameweek(fixture.league.round),
-        homeScore: fixture.goals.home || 0,
-        awayScore: fixture.goals.away || 0,
-        status: 'live' as const
-      }))
+      const params = new URLSearchParams({ type: 'live' })
+      return await this.makeRequest<CreateFixtureData>('/fixtures', params)
     } catch (error) {
       console.error('Error fetching live fixtures:', error)
       return []
@@ -144,20 +78,8 @@ class APIFootballService {
 
   async fetchFinishedFixtures(): Promise<CreateFixtureData[]> {
     try {
-      const data = await this.makeRequest('/fixtures?league=179&season=2023&status=FT')
-      
-      return data.response.map(fixture => ({
-        fixtureId: fixture.fixture.id.toString(),
-        homeTeam: fixture.teams.home.name,
-        awayTeam: fixture.teams.away.name,
-        kickOffTime: Timestamp.fromDate(new Date(fixture.fixture.date)),
-        matchDate: Timestamp.fromDate(new Date(fixture.fixture.date)),
-        leagueType: 'spl',
-        gameweek: this.extractGameweek(fixture.league.round),
-        homeScore: fixture.goals.home || 0,
-        awayScore: fixture.goals.away || 0,
-        status: 'finished' as const
-      }))
+      const params = new URLSearchParams({ type: 'finished' })
+      return await this.makeRequest<CreateFixtureData>('/fixtures', params)
     } catch (error) {
       console.error('Error fetching finished fixtures:', error)
       return []
@@ -166,35 +88,11 @@ class APIFootballService {
 
   async fetchTeams(): Promise<{ id: number; name: string; logo: string }[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/teams?league=179&season=2023`, {
-        headers: {
-          'X-RapidAPI-Key': this.apiKey,
-          'X-RapidAPI-Host': 'v3.football.api-sports.io'
-        }
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`API request failed: ${response.status} - ${errorText}`)
-      }
-
-      const data: APIFootballTeamsResponse = await response.json()
-      
-      return data.response.map(item => ({
-        id: item.team.id,
-        name: item.team.name,
-        logo: item.team.logo
-      }))
+      return await this.makeRequest<{ id: number; name: string; logo: string }>('/teams')
     } catch (error) {
       console.error('Error fetching teams:', error)
       return []
     }
-  }
-
-  private extractGameweek(round: string): number {
-    // Extract gameweek number from round string like "Regular Season - 15"
-    const match = round.match(/(\d+)/)
-    return match ? parseInt(match[1]) : 1
   }
 }
 
