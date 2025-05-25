@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { PredictionCard } from "@/components/prediction-card"
 import { useAuth } from "@/hooks/useAuth"
+import { AuthForm } from "@/components/auth/auth-form"
+import { UserHeader } from "@/components/user-header"
 import { getNext6Fixtures } from "@/lib/demo-fixtures"
 import { createPrediction, getUserPredictions, getUpcomingFixtures } from "@/lib/firestore"
 import { Fixture, Prediction } from "@/types"
@@ -17,19 +19,38 @@ interface PredictionState {
 }
 
 export default function PredictionsPage() {
-  const { user, signInAnonymous, loading: authLoading, error: authError } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const [mounted, setMounted] = useState(false)
+  
+  // Debug logging
+  console.log('🎯 Predictions page auth state:', { 
+    user: user ? { uid: user.uid, email: user.email } : null, 
+    authLoading,
+    mounted,
+    timestamp: new Date().toISOString()
+  });
+  
   const [fixtures, setFixtures] = useState<Fixture[]>([])
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [currentPredictions, setCurrentPredictions] = useState<PredictionState>({})
   const [loading, setLoading] = useState(true)
-  const [signingIn, setSigningIn] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Prevent hydration mismatch
   useEffect(() => {
-    // Load real fixtures from database (with fallback to demo)
-    loadFixtures()
+    setMounted(true)
   }, [])
+
+  useEffect(() => {
+    // Only load fixtures if user is authenticated
+    if (user && !authLoading) {
+      loadFixtures()
+    } else if (!authLoading) {
+      // If not authenticated, stop loading
+      setLoading(false)
+    }
+  }, [user, authLoading])
 
   const loadFixtures = async () => {
     try {
@@ -98,16 +119,7 @@ export default function PredictionsPage() {
     }
   }
 
-  const handleSignIn = async () => {
-    setSigningIn(true)
-    try {
-      await signInAnonymous()
-    } catch (error) {
-      console.error("Sign in failed:", error)
-    } finally {
-      setSigningIn(false)
-    }
-  }
+  // Sign-in is now handled by the SignInForm component
 
   const handleScoreChange = (fixtureId: string, homeScore: number, awayScore: number) => {
     setCurrentPredictions(prev => ({
@@ -185,7 +197,7 @@ export default function PredictionsPage() {
 
   const availableMatches = getAvailableMatches()
 
-  if (authLoading || loading) {
+  if (!mounted || authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-muted/50">
         <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-16">
@@ -211,50 +223,7 @@ export default function PredictionsPage() {
           </div>
 
           <div className="max-w-2xl mx-auto">
-            <Card className="border-2 border-primary/20 bg-card/50 backdrop-blur-sm shadow-2xl">
-              <CardHeader className="text-center pb-6 sm:pb-8 px-4 sm:px-6">
-                <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">
-                  Get Started
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6 px-4 sm:px-6">
-                <p className="text-base sm:text-lg text-muted-foreground text-center leading-relaxed">
-                  Sign in to start making predictions and compete with players worldwide.
-                </p>
-                
-                {/* Error Message */}
-                {authError && (
-                  <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-                    <p className="text-destructive text-sm text-center">
-                      <strong>Authentication Error:</strong> {authError}
-                    </p>
-                    <p className="text-destructive/70 text-xs text-center mt-2">
-                      Please ensure anonymous authentication is enabled in Firebase Console.
-                    </p>
-                  </div>
-                )}
-                
-                <Button
-                  onClick={handleSignIn}
-                  size="lg"
-                  className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold touch-manipulation"
-                  disabled={signingIn}
-                >
-                  {signingIn ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
-                      Signing In...
-                    </div>
-                  ) : (
-                    "Sign In & Start Predicting"
-                  )}
-                </Button>
-                
-                <p className="text-sm text-muted-foreground text-center">
-                  Quick anonymous sign-in - no email required
-                </p>
-              </CardContent>
-            </Card>
+            <AuthForm />
           </div>
         </main>
       </div>
@@ -274,6 +243,8 @@ export default function PredictionsPage() {
         </div>
 
         <div className="max-w-6xl mx-auto">
+          <UserHeader />
+          
           {fixtures.length === 0 ? (
             <Card className="border-2 border-primary/20 bg-card/50 backdrop-blur-sm shadow-2xl">
               <CardContent className="text-center py-16">

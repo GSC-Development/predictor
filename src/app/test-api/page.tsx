@@ -2,8 +2,13 @@
 
 import { useState } from 'react'
 
+interface APIResult {
+  error?: string;
+  [key: string]: unknown;
+}
+
 export default function TestAPIPage() {
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<APIResult | null>(null)
   const [loading, setLoading] = useState(false)
 
   const testEndpoint = async (action: string) => {
@@ -15,7 +20,7 @@ export default function TestAPIPage() {
       const data = await response.json()
       setResult(data)
     } catch (error) {
-      setResult({ error: error.message })
+      setResult({ error: (error as Error).message })
     } finally {
       setLoading(false)
     }
